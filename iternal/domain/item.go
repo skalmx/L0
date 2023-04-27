@@ -1,5 +1,4 @@
 package domain
-
 type Item struct {
 	ChrtID      int    `json:"chrt_id"`
 	TrackNumber string `json:"track_number"`

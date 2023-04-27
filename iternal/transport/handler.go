@@ -9,6 +9,7 @@ import (
 
 type OrderService interface {
 	Create(ctx context.Context, orderUid string, order domain.Order) error
+	GetById(ctx context.Context, orderUid string) (domain.Order, error)
 }
 
 type Handler struct {
@@ -29,6 +30,7 @@ func (h *Handler) Init() *gin.Engine {
 		orders := api.Group("/orders")
 		{
 			orders.POST("", h.Create)
+			orders.GET("/:orderuid", h.GetByid)
 		}
 	}
 	return r

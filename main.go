@@ -4,6 +4,7 @@ import (
 	"L0/iternal/repository"
 	"L0/iternal/service"
 	"L0/iternal/transport"
+	"L0/pkg/cache"
 	"L0/pkg/database"
 	"context"
 	"log"
@@ -21,9 +22,11 @@ func main() {
 	}
 	defer db.Close()
 
+	cache := cache.NewCache()
+
 	repository := repository.NewOrderRepo(db)
 
-	service := service.NewOrderService(repository)
+	service := service.NewOrderService(repository, cache)
 
 	handler := transport.NewHandler(service)
 
@@ -52,4 +55,6 @@ func main() {
 	if err := server.Shutdown(ctx); err != nil {
 		log.Print("failed to stop server:")
 	}
+
+	
 }
