@@ -34,7 +34,7 @@ func (h *Handler) GetByid(c *gin.Context) {
 	order, err := h.service.GetById(context.TODO(), uid)
 	if err != nil {
 		log.Println("cant get order by id")
-		newResponse(c, http.StatusInternalServerError, "cant get info about order with your id")
+		newResponse(c, http.StatusBadRequest, "cant get info about order with your id")
 
 		return
 	}

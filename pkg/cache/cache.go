@@ -33,7 +33,7 @@ func (c *MemoryCache) Get(key string) (*domain.Order, error) {
 	defer c.RUnlock()
 
 	if !ex {
-		return &domain.Order{}, errors.New("no such element in mememory cache")
+		return nil, errors.New("no such element in mememory cache")
 	}
 
 	return data, nil

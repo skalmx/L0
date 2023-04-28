@@ -4,6 +4,7 @@ import (
 	"L0/iternal/domain"
 	"L0/pkg/cache"
 	"context"
+	"log"
 )
 
 type OrderRepo interface {
@@ -29,5 +30,13 @@ func (o *OrderService) Create(ctx context.Context, orderUid string, order domain
 }
 
 func (o *OrderService) GetById(ctx context.Context, orderUid string) (domain.Order, error) {
+	data, err := o.cache.Get(orderUid)
+	if err != nil {
+		log.Println("cant get cached data (maybe there is no such key in map)", err)
+	}
+
+	if (data != nil) {
+		return *data, nil
+	}
 	return o.repo.GetById(ctx, orderUid)
 }

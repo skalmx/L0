@@ -22,9 +22,10 @@ func main() {
 	}
 	defer db.Close()
 
-	cache := cache.NewCache()
-
 	repository := repository.NewOrderRepo(db)
+
+	cache := cache.NewCache()
+	repository.RestoreCache(context.TODO(), cache)
 
 	service := service.NewOrderService(repository, cache)
 

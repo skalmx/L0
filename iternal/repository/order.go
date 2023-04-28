@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"log"
+	"L0/pkg/cache"
 )
 
 type OrderRepo struct {
@@ -48,10 +49,25 @@ func (o *OrderRepo) GetById(ctx context.Context, orderUid string) (domain.Order,
 	}
 
 	return order, nil
-	
-	// if err != nil {
-	// 	log.Print("cant get order by id")
-	// 	return domain.Order{}, err
-	// }
-	// err = json.Unmarshal(result, &order)
+}
+
+func (o *OrderRepo) RestoreCache(ctx context.Context, cache *cache.MemoryCache) error {
+	rows, err := o.db.Query("SELECT order_info FROM orders")
+	if err != nil {
+		log.Println("cant restore cache from postgres")
+		return err
+	}
+	for rows.Next() {
+		var order domain.Order
+		if err := rows.Scan(&order); err != nil {
+			log.Println("cant scan values from db to go struct")
+			return err
+		}
+		if err = cache.Set(&order); err != nil {
+			log.Println("cant set data into cache")
+			return err
+		}
+	}
+
+	return nil
 }
