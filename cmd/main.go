@@ -1,18 +1,23 @@
 package main
 
 import (
+	"L0/iternal/domain"
 	"L0/iternal/repository"
 	"L0/iternal/service"
 	"L0/iternal/transport"
 	"L0/pkg/cache"
 	"L0/pkg/database"
+	"L0/pkg/nats"
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+	"github.com/nats-io/stan.go"
 )
 
 func main() {
@@ -42,7 +47,30 @@ func main() {
 			log.Fatal(err)
 		}
 	}()
+
+	nc, err := nats.Connect("subscriber")
+	if err != nil {
+		log.Fatal("cant connect to nats", err)
+	}
 	
+	_, err = nc.Subscribe("order", func(m *stan.Msg) {
+		fmt.Print(string(m.Data))
+		var order domain.Order
+		err := json.Unmarshal(m.Data, &order)
+		if err != nil {
+			log.Println("not valid json, cant unmarshal it")
+			return
+		}
+		if err = service.Create(context.TODO(), order.OrderUID, order); err != nil {
+			log.Println(err)
+			return
+		}
+	})
+	if err != nil {
+		log.Println(err)
+	}
+	//subcriber.Subscribe(service)
+
 	quit := make(chan os.Signal, 1) 
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 
@@ -56,6 +84,4 @@ func main() {
 	if err := server.Shutdown(ctx); err != nil {
 		log.Print("failed to stop server:")
 	}
-
-	
 }
