@@ -12,5 +12,7 @@ type Response struct {
 func newResponse(c *gin.Context, statusCode int, message string) {
 	log.Println(message)
 
-	c.AbortWithStatusJSON(statusCode, Response{message})
+	c.Writer.Header().Add("Content-Type", "application/json")
+	c.Writer.Header().Add("Access-Control-Allow-Origin", "*",)
+	c.JSON(statusCode, Response{message})
 }

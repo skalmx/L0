@@ -17,7 +17,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	for i := 1; i < 5; i++ { 
+	for i := 0; i < 5; i++ { 
 		id := uuid.New()
 		order := domain.Order{
 			OrderUID:    id.String(),

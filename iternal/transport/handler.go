@@ -24,11 +24,17 @@ func NewHandler(service OrderService) *Handler {
 
 func (h *Handler) Init() *gin.Engine {
 	r := gin.Default()
+	r.LoadHTMLFiles("../web/templates/index.html")
+	r.Static("/js", "../web/static/js")
+	r.Static("/css", "../web/static/css")
 	
 	api := r.Group("/api")
 	{
 		orders := api.Group("/orders")
 		{
+			orders.GET("", func(c *gin.Context) {
+				c.HTML(200, "index.html", map[string]string{"title": "home page"})
+			})
 			orders.POST("", h.Create)
 			orders.GET("/:orderuid", h.GetByid)
 		}

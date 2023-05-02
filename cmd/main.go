@@ -21,6 +21,12 @@ import (
 )
 
 func main() {
+
+	const timeout = 5 * time.Second
+
+	ctx, shutdown := context.WithTimeout(context.Background(), timeout)
+	defer shutdown()
+
 	db, err := postgres.NewPostgresConnection()
 	if err != nil {
 		log.Fatal(err)
@@ -30,7 +36,7 @@ func main() {
 	repository := repository.NewOrderRepo(db)
 
 	cache := cache.NewCache()
-	repository.RestoreCache(context.TODO(), cache)
+	repository.RestoreCache(ctx, cache)
 
 	service := service.NewOrderService(repository, cache)
 
@@ -61,7 +67,7 @@ func main() {
 			log.Println("not valid json, cant unmarshal it")
 			return
 		}
-		if err = service.Create(context.TODO(), order.OrderUID, order); err != nil {
+		if err = service.Create(ctx, order.OrderUID, order); err != nil {
 			log.Println(err)
 			return
 		}
@@ -69,17 +75,11 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	//subcriber.Subscribe(service)
 
 	quit := make(chan os.Signal, 1) 
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 
 	<-quit
-
-	const timeout = 5 * time.Second
-
-	ctx, shutdown := context.WithTimeout(context.Background(), timeout)
-	defer shutdown()
 	
 	if err := server.Shutdown(ctx); err != nil {
 		log.Print("failed to stop server:")
