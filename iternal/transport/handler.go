@@ -24,9 +24,9 @@ func NewHandler(service OrderService) *Handler {
 
 func (h *Handler) Init() *gin.Engine {
 	r := gin.Default()
-	r.LoadHTMLFiles("../web/templates/index.html")
-	r.Static("/js", "../web/static/js")
-	r.Static("/css", "../web/static/css")
+	r.LoadHTMLFiles("./web/templates/index.html")
+	r.Static("/js", "./web/static/js")
+	r.Static("/css", "./web/static/css")
 	
 	api := r.Group("/api")
 	{
